@@ -70,11 +70,41 @@ public class Reversi {
                 Node node = alphaBetaSearch();
                 turnAI(node.row, node.column);
             }
+
+            if (xCanMove) {
+                xCanMove = playerCanMove('X', 'O');
+            }
+
+            if (oCanMove) {
+                oCanMove = playerCanMove('O', 'X');
+            }
+
+            if (!xCanMove && !oCanMove) {
+                calculateScore();
+                break;
+            }
         }
     }
 
     private void playAIvsAI() {
+        while (true) {
+            printBoard();
+            Node node = alphaBetaSearch();
+            turnAI(node.row, node.column);
 
+            if (xCanMove) {
+                xCanMove = playerCanMove('X', 'O');
+            }
+
+            if (oCanMove) {
+                oCanMove = playerCanMove('O', 'X');
+            }
+
+            if (!xCanMove && !oCanMove) {
+                calculateScore();
+                break;
+            }
+        }
     }
 
     private Node alphaBetaSearch() {
