@@ -3,20 +3,24 @@ import java.util.Scanner;
 public class Reversi {
 
     private final int gameMod;
-    private int heuristic;
-    private int minimaxDepth;
+    private final int heuristic;
+    private final int minimaxDepth;
+    private final int starter;
     private char player = 'X', opponent = 'O'; //O: white, X: black
-    private int scoreX = 0, scoreO = 0;
     private boolean writeMode = false;
+    private boolean xCanMove = true;
+    private boolean oCanMove = true;
+
     //Black player starts first
 
     private final char[][] board = new char[8][8];
 
 
-    public Reversi(int gameMod, int heuristic, int minimaxDepth) {
+    public Reversi(int gameMod, int heuristic, int minimaxDepth, int starter) {
         this.gameMod = gameMod;
         this.heuristic = heuristic;
         this.minimaxDepth = minimaxDepth;
+        this.starter = starter;
     }
 
     public void startGame() {
@@ -33,33 +37,9 @@ public class Reversi {
     }
 
     private void playHumanVsHuman() {
-        boolean xCanMove = true;
-        boolean oCanMove = true;
-
         while (true) {
             printBoard();
-            System.out.println(player + "'s Turn. Move (e.g., A1): ");
-            Scanner scanner = new Scanner(System.in);
-            String move = scanner.nextLine();
-
-            int row = move.charAt(1) - '1';
-            int column = move.charAt(0) - 'A';
-
-            writeMode = true;
-
-            if (makeMove(row, column, player, opponent)) {
-                if (player == 'X' && oCanMove) {
-                    player = 'O';
-                    opponent = 'X';
-                } else if (player == 'O' && xCanMove) {
-                    player = 'X';
-                    opponent = 'O';
-                }
-            } else {
-                System.out.println("Invalid move");
-            }
-
-            writeMode = false;
+            turnHuman();
 
             if (xCanMove) {
                 xCanMove = playerCanMove('X', 'O');
@@ -71,27 +51,81 @@ public class Reversi {
 
             if (!xCanMove && !oCanMove) {
                 calculateScore();
-                if (scoreX > scoreO) {
-                    System.out.println("X wins!");
-                } else if (scoreO > scoreX) {
-                    System.out.println("O wins!");
-                } else {
-                    System.out.println("Draw!");
-                }
-                System.out.println("X Score: " + scoreX);
-                System.out.println("O Score: " + scoreO);
                 break;
             }
-
         }
     }
 
     private void playHumanVsAI() {
+        boolean humanTurn = true;
+        if (starter == 2) {
+            humanTurn = false;
+        }
 
+        while(true) {
+            printBoard();
+            if (humanTurn) {
+                turnHuman();
+            } else {
+                Node node = alphaBetaSearch();
+                turnAI(node.row, node.column);
+            }
+        }
     }
 
     private void playAIvsAI() {
 
+    }
+
+    private Node alphaBetaSearch() {
+
+    }
+
+    private int maximize() {
+
+    }
+
+    private int minimize() {
+
+    }
+
+    private void turnHuman() {
+        System.out.println(player + "'s Turn. Move (e.g., A1): ");
+        Scanner scanner = new Scanner(System.in);
+        String move = scanner.nextLine();
+
+        int row = move.charAt(1) - '1';
+        int column = move.charAt(0) - 'A';
+
+        writeMode = true;
+        if (makeMove(row, column, player, opponent)) {
+            if (player == 'X' && oCanMove) {
+                player = 'O';
+                opponent = 'X';
+            } else if (player == 'O' && xCanMove) {
+                player = 'X';
+                opponent = 'O';
+            }
+        } else {
+            System.out.println("Invalid move");
+        }
+        writeMode = false;
+    }
+
+    private void turnAI(int row, int column) {
+        writeMode = true;
+        if (makeMove(row, column, player, opponent)) {
+            if (player == 'X' && oCanMove) {
+                player = 'O';
+                opponent = 'X';
+            } else if (player == 'O' && xCanMove) {
+                player = 'X';
+                opponent = 'O';
+            }
+        } else {
+            System.out.println("Invalid move");
+        }
+        writeMode = false;
     }
 
     private boolean makeMove(int row, int column, char customPlayer, char customOpponent) {
@@ -100,7 +134,7 @@ public class Reversi {
 
         boolean valid = false;
 
-        if (!checkInCorners(row, column)) {
+        if (!checkInBoundary(row, column)) {
             return false;
         }
 
@@ -115,7 +149,7 @@ public class Reversi {
                     continue;
                 }
 
-                if (checkInCorners(row + i, column + j) && board[row + i][column + j] == customOpponent) {
+                if (checkInBoundary(row + i, column + j) && board[row + i][column + j] == customOpponent) {
                     concurrentRow = row + i;
                     concurrentColumn = column + j;
                     if (checkValidMove(concurrentRow, concurrentColumn, i, j, customPlayer, customOpponent)) {
@@ -130,10 +164,10 @@ public class Reversi {
     private boolean checkValidMove(int row, int column, int x, int y, char customPlayer, char customOpponent) {
         int nextRow = row + x;
         int nextColumn = column + y;
-        while (checkInCorners(nextRow, nextColumn)) {
+        while (checkInBoundary(nextRow, nextColumn)) {
             if (board[nextRow][nextColumn] == customPlayer) {
                 if (writeMode) {
-                    turnDisc(row, column, nextRow, nextColumn, x, y);
+                    turnDiscs(row, column, nextRow, nextColumn, x, y);
                 }
                 return true;
             } else if (board[nextRow][nextColumn] == customOpponent) {
@@ -146,7 +180,7 @@ public class Reversi {
         return false;
     }
 
-    private void turnDisc(int row, int column, int finalRow, int finalColumn, int x, int y) {
+    private void turnDiscs(int row, int column, int finalRow, int finalColumn, int x, int y) {
         int currentRow = row;
         int currentColumn = column;
         while (!(currentRow == finalRow && currentColumn == finalColumn)) {
@@ -157,7 +191,7 @@ public class Reversi {
         board[row - x][column - y] = player;
     }
 
-    private boolean checkInCorners(int row, int column) {
+    private boolean checkInBoundary(int row, int column) {
         return row >= 0 && row < 8 && column >= 0 && column < 8;
     }
 
@@ -173,7 +207,8 @@ public class Reversi {
     }
 
     private void calculateScore() {
-
+        int scoreX = 0;
+        int scoreO = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] == 'X') {
@@ -183,6 +218,16 @@ public class Reversi {
                 }
             }
         }
+
+        if (scoreX > scoreO) {
+            System.out.println("X wins!");
+        } else if (scoreO > scoreX) {
+            System.out.println("O wins!");
+        } else {
+            System.out.println("Draw!");
+        }
+        System.out.println("X Score: " + scoreX);
+        System.out.println("O Score: " + scoreO);
     }
 
     private void initializeBoard() {

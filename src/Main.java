@@ -14,6 +14,15 @@ public class Main {
 
         int heuristic = 0;
         int depth = 0;
+        int starter = 0;
+
+        if (mode == 2) {
+            System.out.println("\n1. Human");
+            System.out.println("2. AI");
+            System.out.print("Enter the starter player: ");
+
+            starter = scanner.nextInt();
+        }
 
         if (mode != 1) {
             System.out.println("\n1. h1");
@@ -29,6 +38,6 @@ public class Main {
 
         System.out.println();
 
-        (new Reversi(mode, heuristic, depth)).startGame();
+        (new Reversi(mode, heuristic, depth, starter)).startGame();
     }
 }
