@@ -1,6 +1,8 @@
+package Necati;
+
 import java.util.Scanner;
 
-public class ReversiGame {
+public class Necati {
     static final int SIZE = 8;
     static char[][] board = new char[SIZE][SIZE]; // 'B' for Black, 'W' for White, '.' for empty
     private static long startTime;
