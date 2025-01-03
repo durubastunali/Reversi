@@ -113,8 +113,16 @@ public class Reversi {
         }
     }
 
-    private Node alphaBetaSearch() {
+    private Node alphaBetaSearch() { // state almasına gerek yok board globalde
         return new Node(null, 0, 0);
+    }
+
+    private int maximize() {
+
+    }
+
+    private int minimize() {
+
     }
 
     private int getHeuristic1(char customPlayer, char customOpponent) { //Mesela bunu AI kullanacağından playerı ona göre atılmalı?
