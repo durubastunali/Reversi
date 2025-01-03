@@ -68,7 +68,7 @@ public class Reversi {
                 turnHuman();
                 humanTurn = false;
             } else {
-                Node node = alphaBetaSearch();
+                Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
                 turnAI(node.row, node.column);
                 humanTurn = true;
 
@@ -92,7 +92,7 @@ public class Reversi {
     private void playAIvsAI() {
         while (true) {
             printBoard();
-            Node node = alphaBetaSearch();
+            Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
             turnAI(node.row, node.column);
 
             if (xCanMove) {
@@ -109,123 +109,6 @@ public class Reversi {
             }
         }
     }
-
-    private Node alphaBetaSearch() {
-        int alpha = Integer.MIN_VALUE;
-        int beta = Integer.MAX_VALUE;
-        Node bestNode = null;
-        int maxValue = Integer.MIN_VALUE;
-
-        // Get all possible actions for the current player
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (makeMove(row, col, player, opponent)) {
-                    // Create a new state for the action
-                    char[][] tempBoard = copyBoard(board);
-                    makeMove(row, col, player, opponent);
-                    int value = minimize(tempBoard, 1, alpha, beta);
-
-                    // Undo the move
-                    board[row][col] = '.';
-                    board = tempBoard;
-
-                    // Update the best move
-                    if (value > maxValue) {
-                        maxValue = value;
-                        bestNode = new Node(null, row, col);
-                    }
-
-                    alpha = Math.max(alpha, value);
-                }
-            }
-        }
-        return bestNode;
-    }
-
-    private int maximize(char[][] state, int depth, int alpha, int beta) {
-        if (depth == minimaxDepth || isTerminal(state)) {
-            return evaluate(state);
-        }
-
-        int value = Integer.MIN_VALUE;
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (makeMove(row, col, 'X', 'O')) {
-                    char[][] tempBoard = copyBoard(state);
-                    makeMove(row, col, 'X', 'O');
-                    value = Math.max(value, minimize(tempBoard, depth + 1, alpha, beta));
-
-                    // Undo the move
-                    board[row][col] = '.';
-                    board = tempBoard;
-
-                    if (value >= beta) {
-                        return value; // Beta cutoff
-                    }
-                    alpha = Math.max(alpha, value);
-                }
-            }
-        }
-        return value;
-    }
-
-    private int minimize(char[][] state, int depth, int alpha, int beta) {
-        if (depth == minimaxDepth || isTerminal(state)) {
-            return evaluate(state);
-        }
-
-        int value = Integer.MAX_VALUE;
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (makeMove(row, col, 'O', 'X')) {
-                    char[][] tempBoard = copyBoard(state);
-                    makeMove(row, col, 'O', 'X');
-                    value = Math.min(value, maximize(tempBoard, depth + 1, alpha, beta));
-
-                    // Undo the move
-                    board[row][col] = '.';
-                    board = tempBoard;
-
-                    if (value <= alpha) {
-                        return value; // Alpha cutoff
-                    }
-                    beta = Math.min(beta, value);
-                }
-            }
-        }
-        return value;
-    }
-
-    private boolean isTerminal(char[][] state) {
-        // Check if no moves are possible for both players
-        return !playerCanMove('X', 'O') && !playerCanMove('O', 'X');
-    }
-
-    private int evaluate(char[][] state) {
-        int value = 0;
-        int[] cornerRows = {0, 0, 7, 7};
-        int[] cornerCols = {0, 7, 0, 7};
-
-        for (int i = 0; i < 4; i++) {
-            if (state[cornerRows[i]][cornerCols[i]] == 'X') {
-                value += 100; // Prefer corners
-            } else if (state[cornerRows[i]][cornerCols[i]] == 'O') {
-                value -= 100;
-            }
-        }
-        return value;
-    }
-
-    private char[][] copyBoard(char[][] original) {
-        char[][] copy = new char[8][8];
-        for (int i = 0; i < 8; i++) {
-            System.arraycopy(original[i], 0, copy[i], 0, 8);
-        }
-        return copy;
-    }
-
 
     private void turnHuman() {
         System.out.println(player + "'s Turn. Move (e.g., A1): ");
