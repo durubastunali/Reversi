@@ -1,3 +1,5 @@
+package Duru;
+
 import java.util.Scanner;
 
 public class Reversi {

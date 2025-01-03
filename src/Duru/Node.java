@@ -1,3 +1,5 @@
+package Duru;
+
 public class Node {
     public Node parent;
     public int row;
