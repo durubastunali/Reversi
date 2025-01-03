@@ -16,6 +16,7 @@ public class Reversi {
     //Black player starts first
 
     private char[][] board = new char[8][8];
+    private char[][] copyBoard = new char[8][8];
 
 
     public Reversi(int gameMod, int heuristic, int minimaxDepth, int starter) {
@@ -110,6 +111,64 @@ public class Reversi {
                 break;
             }
         }
+    }
+
+    private Node alphaBetaSearch() {
+        return new Node(null, 0, 0);
+    }
+
+    private int getHeuristic1(char customPlayer, char customOpponent) { //Mesela bunu AI kullanacağından playerı ona göre atılmalı?
+        int playerScore = 0;
+        int opponentScore = 0;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (copyBoard[i][j] == customPlayer) {
+                    playerScore++;
+                } else if (copyBoard[i][j] == customOpponent) {
+                    opponentScore++;
+                }
+            }
+        }
+
+        copyBoard = board.clone(); // Muhtemelen önce hamleyi hayali bi boardda yapcaaz (copy board)
+        // o hamlenin evaluationını aldıktan sonra da geri haline getircez? emin değilim
+
+        return playerScore - opponentScore;
+    }
+
+    private int getHeuristic2(Node node) { //Burada direkt hamleyi alcaz ve kköşeye, kenara yakınlığına bakcaz
+        int row = node.row;
+        int column = node.column;
+
+        int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
+                                    { 80, 50, 50, 50, 50, 50, 50,  80},
+                                    { 80, 50,  0,  0,  0,  0, 50,  80},
+                                    { 80, 50,  0,  0,  0,  0, 50,  80},
+                                    { 80, 50,  0,  0,  0,  0, 50,  80},
+                                    { 80, 50,  0,  0,  0,  0, 50,  80},
+                                    { 80, 50, 50, 50, 50, 50, 50,  80},
+                                    {100, 80, 80, 80, 80, 80, 80, 100}};
+
+        return evaluationBoard[row][column];
+    }
+
+    private int getHeuristic3(Node node) { // Bu da heuristic 2'nin gelişmişi olabilir
+        //Beki buna player - opponent taş sayısı da eklenir
+        int row = node.row;
+        int column = node.column;
+
+        int[][] evaluationBoard = {
+                { 100, -100,  80,  80,  80,  80, -100,  100},
+                {-100, -100, -50, -50, -50, -50, -100, -100},
+                {  80,  -20,  50,  50,  50,  50,  -20,   80},
+                {  80,  -50,  50,   0,   0,   0,   50,   80},
+                {  80,  -50,  50,   0,   0,   0,   50,   80},
+                {  80,  -20,  50,   0,   0,   0,   50,   80},
+                {-100, -100,  50,  50,  50,  50,   50,   80},
+                {-100, -100,  80,  80,  80,  80,   80,  100}};
+
+        return evaluationBoard[row][column];
     }
 
     private void turnHuman() {
