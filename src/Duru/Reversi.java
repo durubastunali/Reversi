@@ -87,6 +87,20 @@ public class Reversi {
         while (true) {
             printBoard();
             Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
+
+            if(node == null){
+                if (player == 'X' && oCanMove) {
+                    player = 'O';
+                    opponent = 'X';
+                } else if (player == 'O' && xCanMove) {
+                    player = 'X';
+                    opponent = 'O';
+                }else{
+                    calculateScore();
+                    break;
+                }
+                continue;
+            }
             turnAI(node.row, node.column);
 
 
@@ -399,6 +413,7 @@ public class Reversi {
     }
 
     private void printBoard() {
+        System.out.println("PLAYER: " + player);
         for (int i = 0; i < 8; i++) {
             System.out.print((i + 1) + " ");
             for (int j = 0; j < 8; j++) {
