@@ -113,17 +113,92 @@ public class Reversi {
         }
     }
 
-    private Node alphaBetaSearch() { // state almasına gerek yok board globalde
-        return new Node(null, 0, 0);
+    private Node alphaBetaSearch() {
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+        int bestValue = Integer.MIN_VALUE;
+        Node bestMove = null;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (makeMove(i, j, player, opponent)) {
+                    copyBoard = cloneBoard(); // Clone the board state
+                    int value = minimize(1, alpha, beta);
+                    if (value > bestValue) {
+                        bestValue = value;
+                        bestMove = new Node(null, i, j);
+                    }
+                    copyBoard = undoBoardState(); // Undo the move
+                }
+            }
+        }
+        return bestMove;
     }
 
-    private int maximize() {
+    private int maximize(int depth, int alpha, int beta) {
+        if (depth == minimaxDepth || isTerminalState()) {
+            return getHeuristic1(player, opponent);
+        }
 
+        int value = Integer.MIN_VALUE;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (makeMove(i, j, player, opponent)) {
+                    copyBoard = cloneBoard();
+                    value = Math.max(value, minimize(depth + 1, alpha, beta));
+                    copyBoard = undoBoardState();
+
+                    if (value >= beta) {
+                        return value; // Beta cutoff
+                    }
+                    alpha = Math.max(alpha, value);
+                }
+            }
+        }
+        return value;
     }
 
-    private int minimize() {
+    private int minimize(int depth, int alpha, int beta) {
+        if (depth == minimaxDepth || isTerminalState()) {
+            return getHeuristic1(opponent, player);
+        }
 
+        int value = Integer.MAX_VALUE;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (makeMove(i, j, opponent, player)) {
+                    copyBoard = cloneBoard();
+                    value = Math.min(value, maximize(depth + 1, alpha, beta));
+                    copyBoard = undoBoardState();
+
+                    if (value <= alpha) {
+                        return value; // Alpha cutoff
+                    }
+                    beta = Math.min(beta, value);
+                }
+            }
+        }
+        return value;
     }
+
+    private char[][] cloneBoard() {
+        char[][] clone = new char[8][8];
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(copyBoard[i], 0, clone[i], 0, 8);
+        }
+        return clone;
+    }
+
+    private char[][] undoBoardState() {
+        char[][] previousState = cloneBoard();
+        return previousState;
+    }
+
+    private boolean isTerminalState() {
+        return !playerCanMove(player, opponent) && !playerCanMove(opponent, player);
+    }
+
+
 
     private int getHeuristic1(char customPlayer, char customOpponent) { //Mesela bunu AI kullanacağından playerı ona göre atılmalı?
         int playerScore = 0;
