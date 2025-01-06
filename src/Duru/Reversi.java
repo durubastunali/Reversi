@@ -123,7 +123,7 @@ public class Reversi {
             for (int j = 0; j < 8; j++) {
                 if (makeMove(i, j, player, opponent)) {
                     copyBoard = cloneBoard(); // Clone the board state
-                    int value = minimize(1, alpha, beta);
+                    int value = minimize(1, alpha, beta,i,j);
                     if (value > bestValue) {
                         bestValue = value;
                         bestMove = new Node(null, i, j);
@@ -145,7 +145,7 @@ public class Reversi {
             for (int j = 0; j < 8; j++) {
                 if (makeMove(i, j, player, opponent)) {
                     copyBoard = cloneBoard();
-                    value = Math.max(value, minimize(depth + 1, alpha, beta));
+                    value = Math.max(value, minimize(depth + 1, alpha, beta,i,j));
                     copyBoard = undoBoardState();
 
                     if (value >= beta) {
@@ -158,9 +158,15 @@ public class Reversi {
         return value;
     }
 
-    private int minimize(int depth, int alpha, int beta) {
+    private int minimize(int depth, int alpha, int beta, int row, int column) {
         if (depth == minimaxDepth || isTerminalState()) {
-            return getHeuristic1(opponent, player);
+            if(heuristic== 1){
+                return getHeuristic1(opponent, player);
+            }else if(heuristic== 2){
+                return getHeuristic2(row,column);
+            }else{
+                return getHeuristic3(row, column);
+            }
         }
 
         int value = Integer.MAX_VALUE;
@@ -220,9 +226,8 @@ public class Reversi {
         return playerScore - opponentScore;
     }
 
-    private int getHeuristic2(Node node) { //Burada direkt hamleyi alcaz ve kköşeye, kenara yakınlığına bakcaz
-        int row = node.row;
-        int column = node.column;
+    private int getHeuristic2(int row, int column) { //Burada direkt hamleyi alcaz ve kköşeye, kenara yakınlığına bakcaz
+
 
         int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
                 { 80, 50, 50, 50, 50, 50, 50,  80},
@@ -236,20 +241,19 @@ public class Reversi {
         return evaluationBoard[row][column];
     }
 
-    private int getHeuristic3(Node node) { // Bu da heuristic 2'nin gelişmişi olabilir
+    private int getHeuristic3(int row, int column) { // Bu da heuristic 2'nin gelişmişi olabilir
         //Beki buna player - opponent taş sayısı da eklenir
-        int row = node.row;
-        int column = node.column;
+
 
         int[][] evaluationBoard = {
                 { 100, -100,  80,  80,  80,  80, -100,  100},
                 {-100, -100, -50, -50, -50, -50, -100, -100},
                 {  80,  -20,  50,  50,  50,  50,  -20,   80},
-                {  80,  -50,  50,   0,   0,   0,   50,   80},
-                {  80,  -50,  50,   0,   0,   0,   50,   80},
-                {  80,  -20,  50,   0,   0,   0,   50,   80},
-                {-100, -100,  50,  50,  50,  50,   50,   80},
-                {-100, -100,  80,  80,  80,  80,   80,  100}};
+                {  80,  -50,  50,   0,   0,  50,   50,   80},
+                {  80,  -50,  50,   0,   0,  50,   50,   80},
+                {  80,  -20,  50,   0,   0,  50,  -20,   80},
+                {-100, -100,  50,  50,  50,  50,  -100, -100},
+                {-100, -100,  80,  80,  80,  80,  -100,  100}};
 
         return evaluationBoard[row][column];
     }
