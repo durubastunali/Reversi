@@ -63,6 +63,9 @@ public class Reversi {
 
             if (player == 'X') {
                 turnHuman();
+            } else if (player == 'O') {
+                Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
+                turnAI(node.row, node.column);
             }
 
             if (xCanMove) {
