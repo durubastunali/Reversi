@@ -42,13 +42,8 @@ public class Reversi {
             printBoard();
             turnHuman();
 
-            if (xCanMove) {
-                xCanMove = playerCanMove('X', 'O');
-            }
-
-            if (oCanMove) {
-                oCanMove = playerCanMove('O', 'X');
-            }
+            xCanMove = playerCanMove('X', 'O');
+            oCanMove = playerCanMove('O', 'X');
 
             if (!xCanMove && !oCanMove) {
                 calculateScore();
@@ -68,13 +63,8 @@ public class Reversi {
                 turnAI(node.row, node.column);
             }
 
-
-                xCanMove = playerCanMove('X', 'O');
-
-
-
-                oCanMove = playerCanMove('O', 'X');
-
+            xCanMove = playerCanMove('X', 'O');
+            oCanMove = playerCanMove('O', 'X');
 
             if (!xCanMove && !oCanMove) {
                 calculateScore();
@@ -89,13 +79,8 @@ public class Reversi {
             Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
             turnAI(node.row, node.column);
 
-
-                xCanMove = playerCanMove('X', 'O');
-
-
-
-                oCanMove = playerCanMove('O', 'X');
-
+            xCanMove = playerCanMove('X', 'O');
+            oCanMove = playerCanMove('O', 'X');
 
             if (!xCanMove && !oCanMove) {
                 calculateScore();
