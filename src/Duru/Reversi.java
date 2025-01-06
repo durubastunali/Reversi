@@ -7,7 +7,6 @@ public class Reversi {
     private final int gameMod;
     private final int heuristic;
     private final int minimaxDepth;
-    private final int starter;
     private char player = 'X', opponent = 'O'; //O: white, X: black
     private boolean writeMode = false;
     private boolean xCanMove = true;
@@ -19,11 +18,10 @@ public class Reversi {
     private char[][] copyBoard = new char[8][8];
 
 
-    public Reversi(int gameMod, int heuristic, int minimaxDepth, int starter) {
+    public Reversi(int gameMod, int heuristic, int minimaxDepth) {
         this.gameMod = gameMod;
         this.heuristic = heuristic;
         this.minimaxDepth = minimaxDepth;
-        this.starter = starter;
     }
 
     public void startGame() {
@@ -60,21 +58,11 @@ public class Reversi {
     }
 
     private void playHumanVsAI() {
-        boolean humanTurn = true;
-        if (starter == 2) {
-            humanTurn = false;
-        }
-
-        while(true) {
+        while (true) {
             printBoard();
-            if (humanTurn) {
-                turnHuman();
-                humanTurn = false;
-            } else {
-                Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
-                turnAI(node.row, node.column);
-                humanTurn = true;
 
+            if (player == 'X') {
+                turnHuman();
             }
 
             if (xCanMove) {
