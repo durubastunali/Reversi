@@ -38,12 +38,15 @@ public class Reversi {
     }
 
     private void playHumanVsHuman() {
+        printBoard();
         while (true) {
-            printBoard();
+
             turnHuman();
 
             xCanMove = playerCanMove('X', 'O');
             oCanMove = playerCanMove('O', 'X');
+
+            printBoard();
 
             if (!xCanMove && !oCanMove) {
                 calculateScore();
@@ -53,8 +56,10 @@ public class Reversi {
     }
 
     private void playHumanVsAI() {
+        printBoard();
+
         while (true) {
-            printBoard();
+
 
             if (player == 'X') {
                 turnHuman();
@@ -66,6 +71,8 @@ public class Reversi {
             xCanMove = playerCanMove('X', 'O');
             oCanMove = playerCanMove('O', 'X');
 
+            printBoard();
+
             if (!xCanMove && !oCanMove) {
                 calculateScore();
                 break;
@@ -74,13 +81,30 @@ public class Reversi {
     }
 
     private void playAIvsAI() {
+        printBoard();
         while (true) {
-            printBoard();
+
             Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
+
+            if(node == null){
+                if (player == 'X' && oCanMove) {
+                    player = 'O';
+                    opponent = 'X';
+                } else if (player == 'O' && xCanMove) {
+                    player = 'X';
+                    opponent = 'O';
+                }else{
+                    calculateScore();
+                    break;
+                }
+                continue;
+            }
             turnAI(node.row, node.column);
 
             xCanMove = playerCanMove('X', 'O');
             oCanMove = playerCanMove('O', 'X');
+
+            printBoard();
 
             if (!xCanMove && !oCanMove) {
                 calculateScore();
@@ -201,13 +225,13 @@ public class Reversi {
         int column = node.column;
 
         int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
-                                    { 80, 50, 50, 50, 50, 50, 50,  80},
-                                    { 80, 50,  0,  0,  0,  0, 50,  80},
-                                    { 80, 50,  0,  0,  0,  0, 50,  80},
-                                    { 80, 50,  0,  0,  0,  0, 50,  80},
-                                    { 80, 50,  0,  0,  0,  0, 50,  80},
-                                    { 80, 50, 50, 50, 50, 50, 50,  80},
-                                    {100, 80, 80, 80, 80, 80, 80, 100}};
+                { 80, 50, 50, 50, 50, 50, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50, 50, 50, 50, 50, 50,  80},
+                {100, 80, 80, 80, 80, 80, 80, 100}};
 
         return evaluationBoard[row][column];
     }
@@ -384,6 +408,7 @@ public class Reversi {
     }
 
     private void printBoard() {
+        System.out.println("PLAYER: " + player);
         for (int i = 0; i < 8; i++) {
             System.out.print((i + 1) + " ");
             for (int j = 0; j < 8; j++) {
