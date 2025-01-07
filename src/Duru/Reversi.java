@@ -60,7 +60,6 @@ public class Reversi {
 
         while (true) {
 
-
             if (player == 'X') {
                 turnHuman();
             } else if (player == 'O') {
@@ -165,7 +164,7 @@ public class Reversi {
             }else if(heuristic== 2){
                 return getHeuristic2(row,column);
             }else{
-                return getHeuristic3(row, column);
+                return getHeuristic3(opponent, player);
             }
         }
 
@@ -241,7 +240,7 @@ public class Reversi {
         return evaluationBoard[row][column];
     }
 
-    private int getHeuristic3(int row, int column) { // Bu da heuristic 2'nin gelişmişi olabilir
+    private int getHeuristic3(char customPlayer, char customOpponent) { // Bu da heuristic 2'nin gelişmişi olabilir
         //Beki buna player - opponent taş sayısı da eklenir
 
 
@@ -255,7 +254,25 @@ public class Reversi {
                 {-100, -100,  50,  50,  50,  50,  -100, -100},
                 {-100, -100,  80,  80,  80,  80,  -100,  100}};
 
-        return evaluationBoard[row][column];
+
+        int playerScore = 0;
+        int opponentScore = 0;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (copyBoard[i][j] == customPlayer) {
+                    playerScore+= evaluationBoard[i][j];
+                } else if (copyBoard[i][j] == customOpponent) {
+                    opponentScore+= evaluationBoard[i][j];
+                }
+            }
+        }
+
+        copyBoard = board.clone(); // Muhtemelen önce hamleyi hayali bi boardda yapcaaz (copy board)
+        // o hamlenin evaluationını aldıktan sonra da geri haline getircez? emin değilim
+
+        return playerScore - opponentScore;
+
     }
 
     private void turnHuman() {
@@ -358,6 +375,7 @@ public class Reversi {
             currentColumn += y;
         }
         board[row - x][column - y] = player;
+
     }
 
     private boolean checkInBoundary(int row, int column) {
