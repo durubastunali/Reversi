@@ -43,8 +43,7 @@ public class Reversi {
 
             turnHuman();
 
-            xCanMove = playerCanMove('X', 'O');
-            oCanMove = playerCanMove('O', 'X');
+
 
             printBoard();
 
@@ -66,9 +65,6 @@ public class Reversi {
                 Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
                 turnAI(node.row, node.column);
             }
-
-            xCanMove = playerCanMove('X', 'O');
-            oCanMove = playerCanMove('O', 'X');
 
             printBoard();
 
@@ -100,8 +96,6 @@ public class Reversi {
             }
             turnAI(node.row, node.column);
 
-            xCanMove = playerCanMove('X', 'O');
-            oCanMove = playerCanMove('O', 'X');
 
             printBoard();
 
@@ -122,6 +116,9 @@ public class Reversi {
 
         writeMode = true;
         if (makeMove(row, column, player, opponent)) {
+            writeMode = false;
+            xCanMove = playerCanMove('X', 'O');
+            oCanMove = playerCanMove('O', 'X');
             if (player == 'X' && oCanMove) {
                 player = 'O';
                 opponent = 'X';
@@ -138,6 +135,9 @@ public class Reversi {
     private void turnAI(int row, int column) {
         writeMode = true;
         if (makeMove(row, column, player, opponent)) {
+            writeMode = false;
+            xCanMove = playerCanMove('X', 'O');
+            oCanMove = playerCanMove('O', 'X');
             if (player == 'X' && oCanMove) {
                 player = 'O';
                 opponent = 'X';
