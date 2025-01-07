@@ -112,6 +112,109 @@ public class Reversi {
         }
     }
 
+    private void turnHuman() {
+        System.out.println(player + "'s Turn. Move (e.g., A1): ");
+        Scanner scanner = new Scanner(System.in);
+        String move = scanner.nextLine();
+
+        int row = move.charAt(1) - '1';
+        int column = move.charAt(0) - 'A';
+
+        writeMode = true;
+        if (makeMove(row, column, player, opponent)) {
+            if (player == 'X' && oCanMove) {
+                player = 'O';
+                opponent = 'X';
+            } else if (player == 'O' && xCanMove) {
+                player = 'X';
+                opponent = 'O';
+            }
+        } else {
+            System.out.println("Invalid move");
+        }
+        writeMode = false;
+    }
+
+    private void turnAI(int row, int column) {
+        writeMode = true;
+        if (makeMove(row, column, player, opponent)) {
+            if (player == 'X' && oCanMove) {
+                player = 'O';
+                opponent = 'X';
+            } else if (player == 'O' && xCanMove) {
+                player = 'X';
+                opponent = 'O';
+            }
+        } else {
+            System.out.println("Invalid move");
+        }
+        writeMode = false;
+    }
+
+    private boolean makeMove(int row, int column, char customPlayer, char customOpponent) {
+        int concurrentRow;
+        int concurrentColumn;
+
+        boolean valid = false;
+
+        if (!checkInBoundary(row, column)) {
+            return false;
+        }
+
+        if (board[row][column] != '.') {
+            return false;
+        }
+
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+
+                if (checkInBoundary(row + i, column + j) && board[row + i][column + j] == customOpponent) {
+                    concurrentRow = row + i;
+                    concurrentColumn = column + j;
+                    if (checkValidMove(concurrentRow, concurrentColumn, i, j, customPlayer, customOpponent)) {
+                        valid = true;
+                    }
+                }
+            }
+        }
+        return valid;
+    }
+
+    private boolean checkValidMove(int row, int column, int x, int y, char customPlayer, char customOpponent) {
+        int nextRow = row + x;
+        int nextColumn = column + y;
+        while (checkInBoundary(nextRow, nextColumn)) {
+            if (board[nextRow][nextColumn] == customPlayer) {
+                if (writeMode) {
+                    turnDiscs(row, column, nextRow, nextColumn, x, y);
+                }
+                return true;
+            } else if (board[nextRow][nextColumn] == customOpponent) {
+                nextRow += x;
+                nextColumn += y;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private void turnDiscs(int row, int column, int finalRow, int finalColumn, int x, int y) {
+        int currentRow = row;
+        int currentColumn = column;
+        while (!(currentRow == finalRow && currentColumn == finalColumn)) {
+            board[currentRow][currentColumn] = player;
+            currentRow += x;
+            currentColumn += y;
+        }
+        board[row - x][column - y] = player;
+
+    }
+
     private Node alphaBetaSearch() {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
@@ -272,109 +375,6 @@ public class Reversi {
         // o hamlenin evaluationını aldıktan sonra da geri haline getircez? emin değilim
 
         return playerScore - opponentScore;
-
-    }
-
-    private void turnHuman() {
-        System.out.println(player + "'s Turn. Move (e.g., A1): ");
-        Scanner scanner = new Scanner(System.in);
-        String move = scanner.nextLine();
-
-        int row = move.charAt(1) - '1';
-        int column = move.charAt(0) - 'A';
-
-        writeMode = true;
-        if (makeMove(row, column, player, opponent)) {
-            if (player == 'X' && oCanMove) {
-                player = 'O';
-                opponent = 'X';
-            } else if (player == 'O' && xCanMove) {
-                player = 'X';
-                opponent = 'O';
-            }
-        } else {
-            System.out.println("Invalid move");
-        }
-        writeMode = false;
-    }
-
-    private void turnAI(int row, int column) {
-        writeMode = true;
-        if (makeMove(row, column, player, opponent)) {
-            if (player == 'X' && oCanMove) {
-                player = 'O';
-                opponent = 'X';
-            } else if (player == 'O' && xCanMove) {
-                player = 'X';
-                opponent = 'O';
-            }
-        } else {
-            System.out.println("Invalid move");
-        }
-        writeMode = false;
-    }
-
-    private boolean makeMove(int row, int column, char customPlayer, char customOpponent) {
-        int concurrentRow;
-        int concurrentColumn;
-
-        boolean valid = false;
-
-        if (!checkInBoundary(row, column)) {
-            return false;
-        }
-
-        if (board[row][column] != '.') {
-            return false;
-        }
-
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-
-                if (i == 0 && j == 0) {
-                    continue;
-                }
-
-                if (checkInBoundary(row + i, column + j) && board[row + i][column + j] == customOpponent) {
-                    concurrentRow = row + i;
-                    concurrentColumn = column + j;
-                    if (checkValidMove(concurrentRow, concurrentColumn, i, j, customPlayer, customOpponent)) {
-                        valid = true;
-                    }
-                }
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkValidMove(int row, int column, int x, int y, char customPlayer, char customOpponent) {
-        int nextRow = row + x;
-        int nextColumn = column + y;
-        while (checkInBoundary(nextRow, nextColumn)) {
-            if (board[nextRow][nextColumn] == customPlayer) {
-                if (writeMode) {
-                    turnDiscs(row, column, nextRow, nextColumn, x, y);
-                }
-                return true;
-            } else if (board[nextRow][nextColumn] == customOpponent) {
-                nextRow += x;
-                nextColumn += y;
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    private void turnDiscs(int row, int column, int finalRow, int finalColumn, int x, int y) {
-        int currentRow = row;
-        int currentColumn = column;
-        while (!(currentRow == finalRow && currentColumn == finalColumn)) {
-            board[currentRow][currentColumn] = player;
-            currentRow += x;
-            currentColumn += y;
-        }
-        board[row - x][column - y] = player;
 
     }
 
