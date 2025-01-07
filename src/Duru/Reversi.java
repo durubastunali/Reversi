@@ -237,9 +237,15 @@ public class Reversi {
         return bestMove;
     }
 
-    private int maximize(int depth, int alpha, int beta) {
+    private int maximize(int depth, int alpha, int beta, int row, int column) {
         if (depth == minimaxDepth || isTerminalState()) {
-            return getHeuristic1(player, opponent);
+            if(heuristic== 1){
+                return getHeuristic1(opponent, player);
+            }else if(heuristic== 2){
+                return getHeuristic2(row,column);
+            }else{
+                return getHeuristic3(opponent, player);
+            }
         }
 
         int value = Integer.MIN_VALUE;
@@ -276,7 +282,7 @@ public class Reversi {
             for (int j = 0; j < 8; j++) {
                 if (makeMove(i, j, opponent, player)) {
                     copyBoard = cloneBoard();
-                    value = Math.min(value, maximize(depth + 1, alpha, beta));
+                    value = Math.min(value, maximize(depth + 1, alpha, beta,i,j));
                     copyBoard = undoBoardState();
 
                     if (value <= alpha) {
@@ -329,24 +335,6 @@ public class Reversi {
     }
 
     private int getHeuristic2(int row, int column) { //Burada direkt hamleyi alcaz ve kköşeye, kenara yakınlığına bakcaz
-
-
-        int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
-                { 80, 50, 50, 50, 50, 50, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50, 50, 50, 50, 50, 50,  80},
-                {100, 80, 80, 80, 80, 80, 80, 100}};
-
-        return evaluationBoard[row][column];
-    }
-
-    private int getHeuristic3(char customPlayer, char customOpponent) { // Bu da heuristic 2'nin gelişmişi olabilir
-        //Beki buna player - opponent taş sayısı da eklenir
-
-
         int[][] evaluationBoard = {
                 { 100, -100,  80,  80,  80,  80, -100,  100},
                 {-100, -100, -50, -50, -50, -50, -100, -100},
@@ -357,6 +345,22 @@ public class Reversi {
                 {-100, -100,  50,  50,  50,  50,  -100, -100},
                 {-100, -100,  80,  80,  80,  80,  -100,  100}};
 
+
+
+        return evaluationBoard[row][column];
+    }
+
+    private int getHeuristic3(char customPlayer, char customOpponent) { // Bu da heuristic 2'nin gelişmişi olabilir
+        //Beki buna player - opponent taş sayısı da eklenir
+
+        int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
+                { 80, 50, 50, 50, 50, 50, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50, 50, 50, 50, 50, 50,  80},
+                {100, 80, 80, 80, 80, 80, 80, 100}};
 
         int playerScore = 0;
         int opponentScore = 0;
