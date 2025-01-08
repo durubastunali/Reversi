@@ -15,7 +15,7 @@ public class Main {
         int mode = scanner.nextInt();
 
         int heuristic = 0;
-        int depth;
+        int depth = 0;
 
         if (mode == 3) {
             System.out.println("\n1. h1 vs h2");
@@ -26,8 +26,10 @@ public class Main {
             heuristic = scanner.nextInt();
         }
 
-        System.out.print("\nEnter the depth of the tree: ");
-        depth = scanner.nextInt();
+        if (mode == 1) {
+            System.out.print("\nEnter the depth of the tree: ");
+            depth = scanner.nextInt();
+        }
 
         System.out.println();
 
