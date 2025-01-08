@@ -6,6 +6,9 @@ public class Reversi {
 
     private final int gameMod;
     private final int heuristic;
+    //1 -> X: H1, O: H2
+    //2 -> X: H1, O: H3
+    //3 -> X: H2, O: H3
     private final int minimaxDepth;
     private char player = 'X', opponent = 'O'; //O: white, X: black
     private boolean writeMode = false;
@@ -16,7 +19,6 @@ public class Reversi {
 
     private char[][] board = new char[8][8];
     private char[][] copyBoard = new char[8][8];
-
 
     public Reversi(int gameMod, int heuristic, int minimaxDepth) {
         this.gameMod = gameMod;
@@ -41,10 +43,15 @@ public class Reversi {
         printBoard();
         while (true) {
 
-            turnHuman();
+            System.out.println(player + "'s Turn. Move (e.g., A1): ");
+            Scanner scanner = new Scanner(System.in);
+            String move = scanner.nextLine();
 
+            int row = move.charAt(1) - '1';
+            int column = move.charAt(0) - 'A';
 
-
+            playerTurn(row, column);
+            
             printBoard();
 
             if (!xCanMove && !oCanMove) {
@@ -60,10 +67,16 @@ public class Reversi {
         while (true) {
 
             if (player == 'X') {
-                turnHuman();
+                System.out.println(player + "'s Turn. Move (e.g., A1): ");
+                Scanner scanner = new Scanner(System.in);
+                String move = scanner.nextLine();
+
+                int row = move.charAt(1) - '1';
+                int column = move.charAt(0) - 'A';
+                playerTurn(row, column);
             } else if (player == 'O') {
                 Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
-                turnAI(node.row, node.column);
+                playerTurn(node.row, node.column);
             }
 
             printBoard();
@@ -79,7 +92,7 @@ public class Reversi {
         printBoard();
         while (true) {
 
-            Node node = alphaBetaSearch(); // hamle verecek burada şunu yap dicek
+            Node node = alphaBetaSearch();
 
             if(node == null){
                 if (player == 'X' && oCanMove) {
@@ -88,14 +101,14 @@ public class Reversi {
                 } else if (player == 'O' && xCanMove) {
                     player = 'X';
                     opponent = 'O';
-                }else{
+                } else{
                     calculateScore();
                     break;
                 }
                 continue;
             }
-            turnAI(node.row, node.column);
 
+            playerTurn(node.row, node.column);
 
             printBoard();
 
@@ -106,33 +119,7 @@ public class Reversi {
         }
     }
 
-    private void turnHuman() {
-        System.out.println(player + "'s Turn. Move (e.g., A1): ");
-        Scanner scanner = new Scanner(System.in);
-        String move = scanner.nextLine();
-
-        int row = move.charAt(1) - '1';
-        int column = move.charAt(0) - 'A';
-
-        writeMode = true;
-        if (makeMove(row, column, player, opponent)) {
-            writeMode = false;
-            xCanMove = playerCanMove('X', 'O');
-            oCanMove = playerCanMove('O', 'X');
-            if (player == 'X' && oCanMove) {
-                player = 'O';
-                opponent = 'X';
-            } else if (player == 'O' && xCanMove) {
-                player = 'X';
-                opponent = 'O';
-            }
-        } else {
-            System.out.println("Invalid move");
-        }
-        writeMode = false;
-    }
-
-    private void turnAI(int row, int column) {
+    private void playerTurn(int row, int column) {
         writeMode = true;
         if (makeMove(row, column, player, opponent)) {
             writeMode = false;
@@ -212,7 +199,6 @@ public class Reversi {
             currentColumn += y;
         }
         board[row - x][column - y] = player;
-
     }
 
     private Node alphaBetaSearch() {
@@ -230,7 +216,7 @@ public class Reversi {
                         bestValue = value;
                         bestMove = new Node(null, i, j);
                     }
-                    copyBoard = undoBoardState(); // Undo the move
+                    copyBoard = cloneBoard(); // Undo the move
                 }
             }
         }
@@ -239,12 +225,27 @@ public class Reversi {
 
     private int maximize(int depth, int alpha, int beta, int row, int column) {
         if (depth == minimaxDepth || isTerminalState()) {
-            if(heuristic== 1){
-                return getHeuristic1(opponent, player);
-            }else if(heuristic== 2){
-                return getHeuristic2(row,column);
-            }else{
+            if (gameMod == 2) {
                 return getHeuristic3(opponent, player);
+            } else if (heuristic == 1) {
+                if (player == 'X') {
+                    return getHeuristic1(opponent, player);
+                } else if (player == 'O') {
+                    return getHeuristic2(opponent, player);
+                }
+            } else if (heuristic == 2) {
+                if (player == 'X') {
+                    return getHeuristic1(opponent, player);
+                } else if (player == 'O') {
+                    return getHeuristic3(opponent, player);
+                }
+
+            } else if (heuristic == 3) {
+                if (player == 'X') {
+                    return getHeuristic2(row,column);
+                } else if (player == 'O') {
+                    return getHeuristic3(opponent, player);
+                }
             }
         }
 
@@ -254,7 +255,7 @@ public class Reversi {
                 if (makeMove(i, j, player, opponent)) {
                     copyBoard = cloneBoard();
                     value = Math.max(value, minimize(depth + 1, alpha, beta,i,j));
-                    copyBoard = undoBoardState();
+                    copyBoard = cloneBoard();
 
                     if (value >= beta) {
                         return value; // Beta cutoff
@@ -268,12 +269,27 @@ public class Reversi {
 
     private int minimize(int depth, int alpha, int beta, int row, int column) {
         if (depth == minimaxDepth || isTerminalState()) {
-            if(heuristic== 1){
-                return getHeuristic1(opponent, player);
-            }else if(heuristic== 2){
-                return getHeuristic2(row,column);
-            }else{
+            if (gameMod == 2) {
                 return getHeuristic3(opponent, player);
+            } else if (heuristic == 1) {
+                if (player == 'X') {
+                    return getHeuristic1(opponent, player);
+                } else if (player == 'O') {
+                    return getHeuristic2(opponent, player);
+                }
+            } else if (heuristic == 2) {
+                if (player == 'X') {
+                    return getHeuristic1(opponent, player);
+                } else if (player == 'O') {
+                    return getHeuristic3(opponent, player);
+                }
+
+            } else if (heuristic == 3) {
+                if (player == 'X') {
+                    return getHeuristic2(row,column);
+                } else if (player == 'O') {
+                    return getHeuristic3(opponent, player);
+                }
             }
         }
 
@@ -283,7 +299,7 @@ public class Reversi {
                 if (makeMove(i, j, opponent, player)) {
                     copyBoard = cloneBoard();
                     value = Math.min(value, maximize(depth + 1, alpha, beta,i,j));
-                    copyBoard = undoBoardState();
+                    copyBoard = cloneBoard();
 
                     if (value <= alpha) {
                         return value; // Alpha cutoff
@@ -303,16 +319,9 @@ public class Reversi {
         return clone;
     }
 
-    private char[][] undoBoardState() {
-        char[][] previousState = cloneBoard();
-        return previousState;
-    }
-
     private boolean isTerminalState() {
         return !playerCanMove(player, opponent) && !playerCanMove(opponent, player);
     }
-
-
 
     private int getHeuristic1(char customPlayer, char customOpponent) { //Mesela bunu AI kullanacağından playerı ona göre atılmalı?
         int playerScore = 0;
@@ -344,9 +353,6 @@ public class Reversi {
                 {  80,  -20,  50,   0,   0,  50,  -20,   80},
                 {-100, -100,  50,  50,  50,  50,  -100, -100},
                 {-100, -100,  80,  80,  80,  80,  -100,  100}};
-
-
-
         return evaluationBoard[row][column];
     }
 

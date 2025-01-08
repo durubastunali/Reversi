@@ -15,26 +15,19 @@ public class Main {
         int mode = scanner.nextInt();
 
         int heuristic = 0;
-        int depth = 0;
+        int depth;
 
-        if (mode == 2) {
-            System.out.println("\n1. Human");
-            System.out.println("2. AI");
-            System.out.print("Enter the starter player: ");
-
-        }
-
-        if (mode != 1) {
-            System.out.println("\n1. h1");
-            System.out.println("2. h2");
-            System.out.println("3. h3");
+        if (mode == 3) {
+            System.out.println("\n1. h1 vs h2");
+            System.out.println("2. h1 vs h3");
+            System.out.println("3. h2 vs h3");
             System.out.print("Select a heuristic: ");
 
             heuristic = scanner.nextInt();
-
-            System.out.print("\nEnter the depth of the tree: ");
-            depth = scanner.nextInt();
         }
+
+        System.out.print("\nEnter the depth of the tree: ");
+        depth = scanner.nextInt();
 
         System.out.println();
 
