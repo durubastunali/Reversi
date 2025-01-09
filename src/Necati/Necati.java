@@ -6,6 +6,7 @@ public class Necati {
     static final int SIZE = 8;
     static char[][] board = new char[SIZE][SIZE]; // 'B' for Black, 'W' for White, '.' for empty
     private static long startTime;
+    public static int evaluationComparison = 0;
     private static final long TIME_LIMIT = 10000; // 10 seconds
 
     public static void main(String[] args) {
@@ -182,7 +183,7 @@ public class Necati {
                 if (board[row][col] == '.') {
                     char[][] backupBoard = copyBoard();
                     if (makeMove(rowToMove(row, col), player)) {
-                        int score = minimax(6, false, Integer.MIN_VALUE, Integer.MAX_VALUE, opponent);
+                        int score = minimax(6, false, Integer.MIN_VALUE, Integer.MAX_VALUE, opponent, row, col);
                         board = backupBoard;
                         if (score > bestScore) {
                             bestScore = score;
@@ -197,13 +198,20 @@ public class Necati {
     }
 
     // Minimax with Alpha-Beta Pruning
-    private static int minimax(int depth, boolean isMaximizing, int alpha, int beta, char player) {
-        if (System.currentTimeMillis() - startTime > TIME_LIMIT) {
-            return evaluateBoard();
-        }
+    private static int minimax(int depth, boolean isMaximizing, int alpha, int beta, char player, int rowIn, int colIn) {
+        if (System.currentTimeMillis() - startTime > TIME_LIMIT || depth == 0  || isGameOver()) {
+            if (evaluationComparison == 0) {
+                if (player == 'B') {
+                    return getEvaluation1(player);
+                } else if (player == 'W') {
+                    return getEvaluation2(rowIn, colIn);
+                }
+            } else if (evaluationComparison == 1) {
 
-        if (depth == 0 || isGameOver()) {
-            return evaluateBoard();
+
+            } else if (evaluationComparison == 2) {
+
+            }
         }
 
         char opponent = (player == 'B') ? 'W' : 'B';
@@ -215,7 +223,7 @@ public class Necati {
                     if (board[row][col] == '.') {
                         char[][] backupBoard = copyBoard();
                         if (makeMove(rowToMove(row, col), player)) {
-                            int eval = minimax(depth - 1, false, alpha, beta, opponent);
+                            int eval = minimax(depth - 1, false, alpha, beta, opponent, row, col);
                             board = backupBoard;
                             maxEval = Math.max(maxEval, eval);
                             alpha = Math.max(alpha, eval);
@@ -234,7 +242,7 @@ public class Necati {
                     if (board[row][col] == '.') {
                         char[][] backupBoard = copyBoard();
                         if (makeMove(rowToMove(row, col), player)) {
-                            int eval = minimax(depth - 1, true, alpha, beta, opponent);
+                            int eval = minimax(depth - 1, true, alpha, beta, opponent, row, col);
                             board = backupBoard;
                             minEval = Math.min(minEval, eval);
                             beta = Math.min(beta, eval);
@@ -261,7 +269,25 @@ public class Necati {
         return "" + (char) (col + 'A') + (row + 1);
     }
 
-    private static int evaluateBoard() {
+    private static int getEvaluation1(char player) {
+        int playerScore = 0, opponentScore = 0;
+
+        char opponent = (player == 'B') ? 'W' : 'B';
+
+        for (int row = 0; row < SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                if (board[row][col] == player) {
+                    playerScore ++;
+                } else if (board[row][col] == opponent) {
+                    opponentScore ++;
+                }
+            }
+        }
+
+        return playerScore - opponentScore;
+    }
+
+    private static int getEvaluation2(int row, int col) {
         int[][] positionWeights = {
                 {100, -20, 10,  5,  5, 10, -20, 100},
                 {-20, -50, -2, -2, -2, -2, -50, -20},
@@ -273,18 +299,8 @@ public class Necati {
                 {100, -20, 10,  5,  5, 10, -20, 100}
         };
 
-        int blackScore = 0, whiteScore = 0;
+        return positionWeights[row][col];
 
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                if (board[row][col] == 'B') {
-                    blackScore += positionWeights[row][col];
-                } else if (board[row][col] == 'W') {
-                    whiteScore += positionWeights[row][col];
-                }
-            }
-        }
-        return blackScore - whiteScore;
     }
 
     private static boolean isGameOver() {
