@@ -6,7 +6,7 @@ public class Necati {
     static final int SIZE = 8;
     static char[][] board = new char[SIZE][SIZE]; // 'B' for Black, 'W' for White, '.' for empty
     private static long startTime;
-    public static int evaluationComparison = 2;
+    public static int evaluationComparison = 1;
     private static final long TIME_LIMIT = 10000; // 10 seconds
 
     public static void main(String[] args) {
@@ -314,14 +314,16 @@ public class Necati {
 
     private static int getEvaluation3(char player) {
 
-        int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
-                { 80, 50, 50, 50, 50, 50, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50,  0,  0,  0,  0, 50,  80},
-                { 80, 50, 50, 50, 50, 50, 50,  80},
-                {100, 80, 80, 80, 80, 80, 80, 100}};
+        int[][] positionWeights = {
+                {500, -20, 10,  5,  5, 10, -20, 500},
+                {-20, -40, -5, -5, -5, -5, -40, -20},
+                { 10,  -5,  3,  3,  3,  3,  -5,  10},
+                { 10,  -5,  3,  0,  0,  3,  -5,  10},
+                { 10,  -5,  3,  0,  0,  3,  -5,  10},
+                { 10,  -5,  3,  3,  3,  3,  -5,  10},
+                {-20, -40, -5, -5, -5, -5, -40, -20},
+                {500, -20, 10,  5,  5, 10, -20, 500},
+        };
 
         int playerScore = 0;
         int opponentScore = 0;
@@ -331,9 +333,9 @@ public class Necati {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] == player) {
-                    playerScore+= evaluationBoard[i][j];
+                    playerScore+= positionWeights[i][j];
                 } else if (board[i][j] == opponent) {
-                    opponentScore+= evaluationBoard[i][j];
+                    opponentScore+= positionWeights[i][j];
                 }
             }
         }
