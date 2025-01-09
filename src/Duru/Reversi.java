@@ -231,7 +231,7 @@ public class Reversi {
                 if (player == 'X') {
                     return getHeuristic1(opponent, player);
                 } else if (player == 'O') {
-                    return getHeuristic2(opponent, player);
+                    return getHeuristic2(row,column);
                 }
             } else if (heuristic == 2) {
                 if (player == 'X') {
