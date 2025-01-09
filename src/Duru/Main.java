@@ -7,6 +7,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
+        // Take the game mode as an input
         System.out.println("1. Human vs Human");
         System.out.println("2. Human vs AI");
         System.out.println("3. AI vs AI");
@@ -17,6 +18,7 @@ public class Main {
         int heuristic = 0;
         int depth = 0;
 
+        // Take the evaluation method comparison option as an input
         if (mode == 3) {
             System.out.println("\n1. h1 vs h2");
             System.out.println("2. h1 vs h3");
@@ -26,6 +28,7 @@ public class Main {
             heuristic = scanner.nextInt();
         }
 
+        // Take the depth of the minimax tree as an input
         if (mode != 1) {
             System.out.print("\nEnter the depth of the tree: ");
             depth = scanner.nextInt();
