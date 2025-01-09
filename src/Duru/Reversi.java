@@ -94,7 +94,7 @@ public class Reversi {
 
             Node node = alphaBetaSearch();
 
-            if(node == null){
+            if (node == null) {
                 if (player == 'X' && oCanMove) {
                     player = 'O';
                     opponent = 'X';
@@ -224,27 +224,27 @@ public class Reversi {
     }
 
     private int maximize(int depth, int alpha, int beta, int row, int column) {
-        if (depth == minimaxDepth || isTerminalState()) {
+        if (depth == minimaxDepth || (!playerCanMove(player, opponent) && !playerCanMove(opponent, player))) {
             if (gameMod == 2) {
-                return getHeuristic3(opponent, player);
+                return getEvaluationMethodH3(opponent, player);
             } else if (heuristic == 1) {
                 if (player == 'X') {
-                    return getHeuristic1(opponent, player);
+                    return getEvaluationMethodH1(opponent, player);
                 } else if (player == 'O') {
-                    return getHeuristic2(row,column);
+                    return getEvaluationMethodH2(row,column);
                 }
             } else if (heuristic == 2) {
                 if (player == 'X') {
-                    return getHeuristic1(opponent, player);
+                    return getEvaluationMethodH1(opponent, player);
                 } else if (player == 'O') {
-                    return getHeuristic3(opponent, player);
+                    return getEvaluationMethodH3(opponent, player);
                 }
 
             } else if (heuristic == 3) {
                 if (player == 'X') {
-                    return getHeuristic2(row,column);
+                    return getEvaluationMethodH2(row,column);
                 } else if (player == 'O') {
-                    return getHeuristic3(opponent, player);
+                    return getEvaluationMethodH3(opponent, player);
                 }
             }
         }
@@ -268,27 +268,27 @@ public class Reversi {
     }
 
     private int minimize(int depth, int alpha, int beta, int row, int column) {
-        if (depth == minimaxDepth || isTerminalState()) {
+        if (depth == minimaxDepth || (!playerCanMove(player, opponent) && !playerCanMove(opponent, player))) {
             if (gameMod == 2) {
-                return getHeuristic3(opponent, player);
+                return getEvaluationMethodH3(opponent, player);
             } else if (heuristic == 1) {
                 if (player == 'X') {
-                    return getHeuristic1(opponent, player);
+                    return getEvaluationMethodH1(opponent, player);
                 } else if (player == 'O') {
-                    return getHeuristic2(opponent, player);
+                    return getEvaluationMethodH2(opponent, player);
                 }
             } else if (heuristic == 2) {
                 if (player == 'X') {
-                    return getHeuristic1(opponent, player);
+                    return getEvaluationMethodH1(opponent, player);
                 } else if (player == 'O') {
-                    return getHeuristic3(opponent, player);
+                    return getEvaluationMethodH3(opponent, player);
                 }
 
             } else if (heuristic == 3) {
                 if (player == 'X') {
-                    return getHeuristic2(row,column);
+                    return getEvaluationMethodH2(row,column);
                 } else if (player == 'O') {
-                    return getHeuristic3(opponent, player);
+                    return getEvaluationMethodH3(opponent, player);
                 }
             }
         }
@@ -319,11 +319,7 @@ public class Reversi {
         return clone;
     }
 
-    private boolean isTerminalState() {
-        return !playerCanMove(player, opponent) && !playerCanMove(opponent, player);
-    }
-
-    private int getHeuristic1(char customPlayer, char customOpponent) { //Mesela bunu AI kullanacağından playerı ona göre atılmalı?
+    private int getEvaluationMethodH1(char customPlayer, char customOpponent) { //Mesela bunu AI kullanacağından playerı ona göre atılmalı?
         int playerScore = 0;
         int opponentScore = 0;
 
@@ -343,7 +339,7 @@ public class Reversi {
         return playerScore - opponentScore;
     }
 
-    private int getHeuristic2(int row, int column) { //Burada direkt hamleyi alcaz ve kköşeye, kenara yakınlığına bakcaz
+    private int getEvaluationMethodH2(int row, int column) { //Burada direkt hamleyi alcaz ve kköşeye, kenara yakınlığına bakcaz
         int[][] evaluationBoard = {
                 { 100, -100,  80,  80,  80,  80, -100,  100},
                 {-100, -100, -50, -50, -50, -50, -100, -100},
@@ -356,7 +352,7 @@ public class Reversi {
         return evaluationBoard[row][column];
     }
 
-    private int getHeuristic3(char customPlayer, char customOpponent) { // Bu da heuristic 2'nin gelişmişi olabilir
+    private int getEvaluationMethodH3(char customPlayer, char customOpponent) { // Bu da heuristic 2'nin gelişmişi olabilir
         //Beki buna player - opponent taş sayısı da eklenir
 
         int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
