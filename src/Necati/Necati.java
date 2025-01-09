@@ -6,7 +6,7 @@ public class Necati {
     static final int SIZE = 8;
     static char[][] board = new char[SIZE][SIZE]; // 'B' for Black, 'W' for White, '.' for empty
     private static long startTime;
-    public static int evaluationComparison = 0;
+    public static int evaluationComparison = 2;
     private static final long TIME_LIMIT = 10000; // 10 seconds
 
     public static void main(String[] args) {
@@ -207,10 +207,20 @@ public class Necati {
                     return getEvaluation2(rowIn, colIn);
                 }
             } else if (evaluationComparison == 1) {
+                if (player == 'B') {
+                    return getEvaluation1(player);
+                } else if (player == 'W') {
+                    return getEvaluation3(player);
 
+                }
 
             } else if (evaluationComparison == 2) {
+                if (player == 'B') {
+                    return getEvaluation2(rowIn, colIn);
 
+                } else if (player == 'W') {
+                    return getEvaluation3(player);
+                }
             }
         }
 
@@ -300,6 +310,34 @@ public class Necati {
         };
 
         return positionWeights[row][col];
+    }
+
+    private static int getEvaluation3(char player) {
+
+        int[][] evaluationBoard = { {100, 80, 80, 80, 80, 80, 80, 100},
+                { 80, 50, 50, 50, 50, 50, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50,  0,  0,  0,  0, 50,  80},
+                { 80, 50, 50, 50, 50, 50, 50,  80},
+                {100, 80, 80, 80, 80, 80, 80, 100}};
+
+        int playerScore = 0;
+        int opponentScore = 0;
+
+        char opponent = (player == 'B') ? 'W' : 'B';
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] == player) {
+                    playerScore+= evaluationBoard[i][j];
+                } else if (board[i][j] == opponent) {
+                    opponentScore+= evaluationBoard[i][j];
+                }
+            }
+        }
+        return playerScore - opponentScore;
 
     }
 
