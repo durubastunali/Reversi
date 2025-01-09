@@ -26,7 +26,7 @@ public class Main {
             heuristic = scanner.nextInt();
         }
 
-        if (mode == 1) {
+        if (mode != 1) {
             System.out.print("\nEnter the depth of the tree: ");
             depth = scanner.nextInt();
         }
