@@ -51,15 +51,19 @@ public class Reversi {
     // Human vs Human mode
     private  void playHumanVsHuman() {
         char currentPlayer = 'X';
+        char opponentPlayer = 'O';
         while (true) {
             printBoard();
-            System.out.println("Player " + currentPlayer + ", make your move (e.g., E3): ");
+            System.out.print("Player " + currentPlayer + ": ");
             Scanner scanner = new Scanner(System.in);
             String move = scanner.nextLine();
             if (makeMove(move, currentPlayer)) {
-                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                if (canMove(opponentPlayer)) {
+                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                    opponentPlayer = (opponentPlayer == 'X') ? 'O' : 'X';
+                }
             } else {
-                System.out.println("Invalid move. Try again.");
+                System.out.println("Invalid move");
             }
             if (isGameOver()) {
                 declareWinner();
@@ -342,26 +346,28 @@ public class Reversi {
 
     }
 
-    private  boolean isGameOver() {
-        boolean blackHasMove = false;
-        boolean whiteHasMove = false;
+    private boolean isGameOver() {
+        boolean xCanMove = canMove('X');
+        boolean oCanMove = canMove('O');
 
+        return !(xCanMove || oCanMove);
+    }
+
+    private boolean canMove(char player) {
+        boolean canMove = false;
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 if (board[row][col] == '.') {
-                    if (canMove(row, col, 'X')) {
-                        blackHasMove = true;
-                    }
-                    if (canMove(row, col, 'O')) {
-                        whiteHasMove = true;
+                    if (checkValidMove(row, col, player)) {
+                        canMove = true;
                     }
                 }
             }
         }
-        return !(blackHasMove || whiteHasMove);
+        return canMove;
     }
 
-    private  boolean canMove(int row, int col, char player) {
+    private boolean checkValidMove(int row, int col, char player) {
         char opponent = (player == 'X') ? 'O' : 'X';
 
         if (board[row][col] != '.') {
