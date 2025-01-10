@@ -1,5 +1,3 @@
-package Duru;
-
 import java.util.Scanner;
 
 public class Main {

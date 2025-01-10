@@ -1,66 +1,63 @@
-package Necati;
-
 import java.util.Scanner;
 
-public class Necati {
-    static final int SIZE = 8;
-    static char[][] board = new char[SIZE][SIZE]; // 'B' for Black, 'W' for White, '.' for empty
-    private static long startTime;
-    public static int evaluationComparison = 1;
-    private static final long TIME_LIMIT = 10000; // 10 seconds
+public class Reversi {
+    private char[][] board = new char[8][8]; // 'X' for Black, 'O' for White, '.' for empty
+    private final int evaluationComparison;
+    private final int gameMode;
+    private final int depth;
+    private long startTime;
 
-    public static void main(String[] args) {
+    public Reversi(int gameMode, int evaluationComparison, int depth) {
+        this.gameMode = gameMode;
+        this.evaluationComparison = evaluationComparison;
+        this.depth = depth;
+    }
+
+    public  void startGame() {
         initializeBoard();
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Select game mode: ");
-        System.out.println("1. Human vs Human");
-        System.out.println("2. Human vs AI");
-        System.out.println("3. AI vs AI");
-        int mode = scanner.nextInt();
-
-        switch (mode) {
+        switch (gameMode) {
             case 1 -> playHumanVsHuman();
             case 2 -> playHumanVsAI();
             case 3 -> playAIvsAI();
-            default -> System.out.println("Invalid mode.");
+            default -> System.out.println("Invalid game mode");
         }
     }
 
-    // Initialize board with starting pieces
-    private static void initializeBoard() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+    private  void initializeBoard() {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 board[i][j] = '.';
             }
         }
-        board[3][3] = 'W';
-        board[4][4] = 'W';
-        board[3][4] = 'B';
-        board[4][3] = 'B';
+        board[3][3] = 'O';
+        board[4][4] = 'O';
+        board[3][4] = 'X';
+        board[4][3] = 'X';
     }
 
     // Display the board
-    private static void printBoard() {
-        System.out.println("  A B C D E F G H");
-        for (int i = 0; i < SIZE; i++) {
+    private  void printBoard() {
+        for (int i = 0; i < 8; i++) {
             System.out.print((i + 1) + " ");
-            for (int j = 0; j < SIZE; j++) {
+            for (int j = 0; j < 8; j++) {
                 System.out.print(board[i][j] + " ");
             }
             System.out.println();
         }
+        System.out.println("  A B C D E F G H");
+
     }
 
     // Human vs Human mode
-    private static void playHumanVsHuman() {
-        char currentPlayer = 'B';
+    private  void playHumanVsHuman() {
+        char currentPlayer = 'X';
         while (true) {
             printBoard();
             System.out.println("Player " + currentPlayer + ", make your move (e.g., E3): ");
             Scanner scanner = new Scanner(System.in);
             String move = scanner.nextLine();
             if (makeMove(move, currentPlayer)) {
-                currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
+                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
             } else {
                 System.out.println("Invalid move. Try again.");
             }
@@ -72,36 +69,36 @@ public class Necati {
     }
 
     // Human vs AI mode
-    private static void playHumanVsAI() {
-        char currentPlayer = 'B';
+    private  void playHumanVsAI() {
+        char currentPlayer = 'X';
         while (true) {
             printBoard();
             if (isGameOver()) {
                 declareWinner();
                 break;
             }
-            if (currentPlayer == 'B') {
+            if (currentPlayer == 'X') {
                 System.out.println("Player " + currentPlayer + ", make your move (e.g., E3): ");
                 Scanner scanner = new Scanner(System.in);
                 String move = scanner.nextLine();
                 if (makeMove(move, currentPlayer)) {
-                    currentPlayer = 'W';
+                    currentPlayer = 'O';
                 } else {
                     System.out.println("Invalid move. Try again.");
                 }
             } else {
                 System.out.println("AI is making a move...");
                 startTime = System.currentTimeMillis();
-                String aiMove = getBestMove(currentPlayer);
+                String aiMove = alphaBetaSearch(currentPlayer);
                 if (aiMove != null) makeMove(aiMove, currentPlayer);
-                currentPlayer = 'B';
+                currentPlayer = 'X';
             }
         }
     }
 
     // AI vs AI mode
-    private static void playAIvsAI() {
-        char currentPlayer = 'B';
+    private  void playAIvsAI() {
+        char currentPlayer = 'X';
         int skipCount = 0;
         while (true) {
             printBoard();
@@ -111,7 +108,7 @@ public class Necati {
             }
             System.out.println("AI (" + currentPlayer + ") is making a move...");
             startTime = System.currentTimeMillis();
-            String aiMove = getBestMove(currentPlayer);
+            String aiMove = alphaBetaSearch(currentPlayer);
             if (aiMove == null) {
                 System.out.println("AI (" + currentPlayer + ") has no valid moves. Skipping turn.");
                 skipCount++;
@@ -119,26 +116,26 @@ public class Necati {
                     declareWinner();
                     break;
                 }
-                currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
+                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
                 continue;
             }
             makeMove(aiMove, currentPlayer);
             skipCount = 0;
-            currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
         }
     }
 
     // Check if the move is valid and make it
-    private static boolean makeMove(String move, char player) {
+    private  boolean makeMove(String move, char player) {
         int row = move.charAt(1) - '1';
         int col = move.charAt(0) - 'A';
 
-        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || board[row][col] != '.') {
+        if (row < 0 || row >= 8 || col < 0 || col >= 8 || board[row][col] != '.') {
             return false;
         }
 
         boolean valid = false;
-        char opponent = (player == 'B') ? 'W' : 'B';
+        char opponent = (player == 'X') ? 'O' : 'X';
 
         int[] dr = {-1, -1, -1, 0, 1, 1, 1, 0};
         int[] dc = {-1, 0, 1, 1, 1, 0, -1, -1};
@@ -148,13 +145,13 @@ public class Necati {
             int c = col + dc[d];
             boolean hasOpponent = false;
 
-            while (r >= 0 && r < SIZE && c >= 0 && c < SIZE && board[r][c] == opponent) {
+            while (r >= 0 && r < 8 && c >= 0 && c < 8 && board[r][c] == opponent) {
                 r += dr[d];
                 c += dc[d];
                 hasOpponent = true;
             }
 
-            if (hasOpponent && r >= 0 && r < SIZE && c >= 0 && c < SIZE && board[r][c] == player) {
+            if (hasOpponent && r >= 0 && r < 8 && c >= 0 && c < 8 && board[r][c] == player) {
                 valid = true;
                 r = row + dr[d];
                 c = col + dc[d];
@@ -173,17 +170,17 @@ public class Necati {
     }
 
     // Get the best move for AI
-    private static String getBestMove(char player) {
+    private  String alphaBetaSearch(char player) {
         int bestScore = Integer.MIN_VALUE;
         String bestMove = null;
-        char opponent = (player == 'B') ? 'W' : 'B';
+        char opponent = (player == 'X') ? 'O' : 'X';
 
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
                 if (board[row][col] == '.') {
                     char[][] backupBoard = copyBoard();
                     if (makeMove(rowToMove(row, col), player)) {
-                        int score = minimax(6, false, Integer.MIN_VALUE, Integer.MAX_VALUE, opponent, row, col);
+                        int score = minimax(depth, false, Integer.MIN_VALUE, Integer.MAX_VALUE, opponent, row, col);
                         board = backupBoard;
                         if (score > bestScore) {
                             bestScore = score;
@@ -198,38 +195,40 @@ public class Necati {
     }
 
     // Minimax with Alpha-Beta Pruning
-    private static int minimax(int depth, boolean isMaximizing, int alpha, int beta, char player, int rowIn, int colIn) {
-        if (System.currentTimeMillis() - startTime > TIME_LIMIT || depth == 0  || isGameOver()) {
-            if (evaluationComparison == 0) {
-                if (player == 'B') {
-                    return getEvaluation1(player);
-                } else if (player == 'W') {
-                    return getEvaluation2(rowIn, colIn);
-                }
-            } else if (evaluationComparison == 1) {
-                if (player == 'B') {
-                    return getEvaluation1(player);
-                } else if (player == 'W') {
-                    return getEvaluation3(player);
+    private  int minimax(int depth, boolean isMaximizing, int alpha, int beta, char player, int rowIn, int colIn) {
+        if (System.currentTimeMillis() - startTime > 10000 || depth == 0  || isGameOver()) {
+            if (gameMode == 2) {
+                return getEvaluation3(player);
+            } else if (gameMode == 3) {
+                if (evaluationComparison == 1) {
+                    if (player == 'X') {
+                        return getEvaluation1(player);
+                    } else if (player == 'O') {
+                        return getEvaluation2(rowIn, colIn);
+                    }
+                } else if (evaluationComparison == 2) {
+                    if (player == 'X') {
+                        return getEvaluation1(player);
+                    } else if (player == 'O') {
+                        return getEvaluation3(player);
+                    }
+                } else if (evaluationComparison == 3) {
+                    if (player == 'X') {
+                        return getEvaluation2(rowIn, colIn);
 
-                }
-
-            } else if (evaluationComparison == 2) {
-                if (player == 'B') {
-                    return getEvaluation2(rowIn, colIn);
-
-                } else if (player == 'W') {
-                    return getEvaluation3(player);
+                    } else if (player == 'O') {
+                        return getEvaluation3(player);
+                    }
                 }
             }
         }
 
-        char opponent = (player == 'B') ? 'W' : 'B';
+        char opponent = (player == 'X') ? 'O' : 'X';
 
         if (isMaximizing) {
             int maxEval = Integer.MIN_VALUE;
-            for (int row = 0; row < SIZE; row++) {
-                for (int col = 0; col < SIZE; col++) {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
                     if (board[row][col] == '.') {
                         char[][] backupBoard = copyBoard();
                         if (makeMove(rowToMove(row, col), player)) {
@@ -247,8 +246,8 @@ public class Necati {
             return maxEval;
         } else {
             int minEval = Integer.MAX_VALUE;
-            for (int row = 0; row < SIZE; row++) {
-                for (int col = 0; col < SIZE; col++) {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
                     if (board[row][col] == '.') {
                         char[][] backupBoard = copyBoard();
                         if (makeMove(rowToMove(row, col), player)) {
@@ -267,25 +266,25 @@ public class Necati {
         }
     }
 
-    private static char[][] copyBoard() {
-        char[][] copy = new char[SIZE][SIZE];
-        for (int i = 0; i < SIZE; i++) {
-            System.arraycopy(board[i], 0, copy[i], 0, SIZE);
+    private char[][] copyBoard() {
+        char[][] copy = new char[8][8];
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(board[i], 0, copy[i], 0, 8);
         }
         return copy;
     }
 
-    private static String rowToMove(int row, int col) {
+    private String rowToMove(int row, int col) {
         return "" + (char) (col + 'A') + (row + 1);
     }
 
-    private static int getEvaluation1(char player) {
+    private int getEvaluation1(char player) {
         int playerScore = 0, opponentScore = 0;
 
-        char opponent = (player == 'B') ? 'W' : 'B';
+        char opponent = (player == 'X') ? 'O' : 'X';
 
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
                 if (board[row][col] == player) {
                     playerScore ++;
                 } else if (board[row][col] == opponent) {
@@ -297,7 +296,7 @@ public class Necati {
         return playerScore - opponentScore;
     }
 
-    private static int getEvaluation2(int row, int col) {
+    private  int getEvaluation2(int row, int col) {
         int[][] positionWeights = {
                 {100, -20, 10,  5,  5, 10, -20, 100},
                 {-20, -50, -2, -2, -2, -2, -50, -20},
@@ -312,7 +311,7 @@ public class Necati {
         return positionWeights[row][col];
     }
 
-    private static int getEvaluation3(char player) {
+    private  int getEvaluation3(char player) {
 
         int[][] positionWeights = {
                 {500, -20, 10,  5,  5, 10, -20, 500},
@@ -328,7 +327,7 @@ public class Necati {
         int playerScore = 0;
         int opponentScore = 0;
 
-        char opponent = (player == 'B') ? 'W' : 'B';
+        char opponent = (player == 'X') ? 'O' : 'X';
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -343,17 +342,17 @@ public class Necati {
 
     }
 
-    private static boolean isGameOver() {
+    private  boolean isGameOver() {
         boolean blackHasMove = false;
         boolean whiteHasMove = false;
 
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
                 if (board[row][col] == '.') {
-                    if (canMove(row, col, 'B')) {
+                    if (canMove(row, col, 'X')) {
                         blackHasMove = true;
                     }
-                    if (canMove(row, col, 'W')) {
+                    if (canMove(row, col, 'O')) {
                         whiteHasMove = true;
                     }
                 }
@@ -362,8 +361,8 @@ public class Necati {
         return !(blackHasMove || whiteHasMove);
     }
 
-    private static boolean canMove(int row, int col, char player) {
-        char opponent = (player == 'B') ? 'W' : 'B';
+    private  boolean canMove(int row, int col, char player) {
+        char opponent = (player == 'X') ? 'O' : 'X';
 
         if (board[row][col] != '.') {
             return false;
@@ -377,25 +376,25 @@ public class Necati {
             int c = col + dc[d];
             boolean hasOpponent = false;
 
-            while (r >= 0 && r < SIZE && c >= 0 && c < SIZE && board[r][c] == opponent) {
+            while (r >= 0 && r < 8 && c >= 0 && c < 8 && board[r][c] == opponent) {
                 r += dr[d];
                 c += dc[d];
                 hasOpponent = true;
             }
 
-            if (hasOpponent && r >= 0 && r < SIZE && c >= 0 && c < SIZE && board[r][c] == player) {
+            if (hasOpponent && r >= 0 && r < 8 && c >= 0 && c < 8 && board[r][c] == player) {
                 return true;
             }
         }
         return false;
     }
 
-    private static void declareWinner() {
+    private  void declareWinner() {
         int blackCount = 0, whiteCount = 0;
         for (char[] row : board) {
             for (char cell : row) {
-                if (cell == 'B') blackCount++;
-                if (cell == 'W') whiteCount++;
+                if (cell == 'X') blackCount++;
+                if (cell == 'O') whiteCount++;
             }
         }
         System.out.println("Game over!");
