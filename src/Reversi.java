@@ -75,6 +75,7 @@ public class Reversi {
     // Human vs AI mode
     private  void playHumanVsAI() {
         char currentPlayer = 'X';
+        char opponentPlayer = 'O';
         while (true) {
             printBoard();
             if (isGameOver()) {
@@ -86,16 +87,28 @@ public class Reversi {
                 Scanner scanner = new Scanner(System.in);
                 String move = scanner.nextLine();
                 if (makeMove(move, currentPlayer)) {
-                    currentPlayer = 'O';
+                    if (canMove(opponentPlayer)) {
+                        currentPlayer = 'O';
+                        opponentPlayer = 'X';
+                    }
                 } else {
-                    System.out.println("Invalid move. Try again.");
+                    System.out.println("Invalid move");
                 }
             } else {
                 System.out.println("AI is making a move...");
                 startTime = System.currentTimeMillis();
                 String aiMove = alphaBetaSearch(currentPlayer);
-                if (aiMove != null) makeMove(aiMove, currentPlayer);
-                currentPlayer = 'X';
+                if (aiMove != null) {
+                    if (makeMove(aiMove, currentPlayer)) {
+                        if (canMove(opponentPlayer)) {
+                            currentPlayer = 'X';
+                            opponentPlayer = 'O';
+                        }
+                    }
+                } else {
+                    currentPlayer = 'X';
+                    opponentPlayer = 'O';
+                }
             }
         }
     }
@@ -103,7 +116,6 @@ public class Reversi {
     // AI vs AI mode
     private  void playAIvsAI() {
         char currentPlayer = 'X';
-        int skipCount = 0;
         while (true) {
             printBoard();
             if (isGameOver()) {
@@ -115,16 +127,10 @@ public class Reversi {
             String aiMove = alphaBetaSearch(currentPlayer);
             if (aiMove == null) {
                 System.out.println("AI (" + currentPlayer + ") has no valid moves. Skipping turn.");
-                skipCount++;
-                if (skipCount >= 2) {
-                    declareWinner();
-                    break;
-                }
                 currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
                 continue;
             }
             makeMove(aiMove, currentPlayer);
-            skipCount = 0;
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
         }
     }
