@@ -186,7 +186,7 @@ public class Reversi {
         return valid; // Return whether the process is valid or not
     }
 
-    private  String alphaBetaSearch(char player) {
+    private String alphaBetaSearch(char player) {
         int bestScore = Integer.MIN_VALUE;
         String bestMove = null;
         char opponent = (player == 'X') ? 'O' : 'X';
@@ -210,7 +210,7 @@ public class Reversi {
         return bestMove;
     }
 
-    private  int minimax(int depth, boolean isMaximizing, int alpha, int beta, char player, int inputRow, int inputColumn) {
+    private int minimax(int depth, boolean isMaximizing, int alpha, int beta, char player, int inputRow, int inputColumn) {
         // Check the time limit and if the game is over
         if (System.currentTimeMillis() - startTime > 10000 || depth == 0  || checkGameOver()) {
             if (gameMode == 2) { // If Human vs AI mode, return the best evaluation method: H3
